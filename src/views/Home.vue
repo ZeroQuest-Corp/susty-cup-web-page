@@ -1,15 +1,9 @@
 <template>
-  <div>
-    <h1>Home</h1>
-  </div>
-  <div>
-    <HelloWorld/>
-  </div>
-
+  <MainPage/>
 </template>
 
 <script setup lang="ts">
-import HelloWorld from '@/components/HelloWorld.vue';
+import MainPage from '@/components/MainPage.vue';
 
 </script>
 
