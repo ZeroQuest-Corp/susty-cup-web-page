@@ -1,0 +1,7 @@
+/* src/assets/tailwind.css */
+@import "tailwindcss";
+
+@theme {
+  --color-start: #11473F;
+  --color-end: #1E8374;
+}
