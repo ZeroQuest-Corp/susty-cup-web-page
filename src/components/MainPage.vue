@@ -69,6 +69,7 @@ import kakao_login from '@/assets/images/button/kakao_login.png';
 import main_cup from '@/assets/images/main_cup.png';
 import background_cup from '@/assets/images/background_cup.png';
 
+
 const {
   usageCount,
   carbonReduced,
