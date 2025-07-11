@@ -187,12 +187,18 @@
 <script setup lang="ts">
 import { useCupStats } from '@/composables/useCupStats';
 import zqLogoMain from '@/assets/images/logo/zq_logo_main.png';
+import { useKakaoAuth } from '@/composables/useKakaoAuth';
 
-const { usageCount } = useCupStats();
+const { login, getProfile } = useKakaoAuth(); // 카카오 로그인 함수 가져오기
 
-const handleKakaoLogin = () => {
-  console.log('카카오톡 로그인 클릭');
-  // 카카오톡 로그인 로직 구현
+const { usageCount } = useCupStats(); // 서스티컵 사용횟수 가져오기
+
+const handleKakaoLogin = async () => {
+  window.Kakao.Auth.authorize({
+    scope: 'profile_nickname, account_email',  // 필요한 권한만
+    redirectUri: 'http://localhost:3008/auth/kakao/authorize',
+    // prompt: 'select_account',
+  });
 };
 </script>
 

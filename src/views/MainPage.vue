@@ -23,11 +23,6 @@
 
       <!-- 통합된 로그인 및 가이드 섹션 -->
       <LoginGuideSection />
-
-      <!-- 6) 푸터 로고 -->
-      <!-- <footer class="mt-4">
-        <img :src="zq_logo" alt="ZeroQuest Logo" class="h-8 w-auto object-contain mx-auto opacity-80" />
-      </footer> -->
     </div>
 
   </div>
