@@ -500,55 +500,54 @@
 import { useCupStats } from "@/composables/useCupStats";
 import zqLogoMain from "@/assets/images/logo/zq_logo_main.png";
 import { useRouter } from "vue-router";
-import { onMounted, onUnmounted } from "vue";
-import { authStorage } from "@/api/auth";
 
 const router = useRouter();
 const { usageCount } = useCupStats();
 
-// 서버로부터 로그인 결과를 받기 위한 메시지 리스너
-const handleLoginResult = (event: MessageEvent) => {
-  // 보안: 올바른 origin인지 확인
-  if (event.origin !== "http://localhost:3008") return;
+// // 서버로부터 로그인 결과를 받기 위한 메시지 리스너
+// const handleLoginResult = (event: MessageEvent) => {
+//   // 보안: 올바른 origin인지 확인
+//   if (event.origin !== "http://localhost:3008") return;
 
-  const { type, data } = event.data;
+//   const { type, data } = event.data;
 
-  if (type === "KAKAO_LOGIN_SUCCESS") {
-    // 로그인 성공 처리
-    console.log("로그인 성공:", data);
+//   if (type === "KAKAO_LOGIN_SUCCESS") {
+//     // 로그인 성공 처리
+//     console.log("로그인 성공:", data);
 
-    // 토큰 저장
-    if (data.token) {
-      localStorage.setItem("auth_token", data.token);
-    }
+//     // 토큰 저장
+//     if (data.token) {
+//       localStorage.setItem("auth_token", data.token);
+//     }
 
-    // 사용자 정보 저장
-    if (data.userInfo) {
-      localStorage.setItem("user_info", JSON.stringify(data.userInfo));
-    }
+//     // 사용자 정보 저장
+//     if (data.userInfo) {
+//       localStorage.setItem("user_info", JSON.stringify(data.userInfo));
+//     }
 
-    // 대시보드로 이동
-    router.push("/dashboard");
-  } else if (type === "KAKAO_LOGIN_ERROR") {
-    // 로그인 실패 처리
-    console.error("로그인 실패:", data);
-    alert("로그인에 실패했습니다. 다시 시도해주세요.");
-  }
-};
+//     // 대시보드로 이동
+//     router.push("/dashboard");
+//   } else if (type === "KAKAO_LOGIN_ERROR") {
+//     // 로그인 실패 처리
+//     console.error("로그인 실패:", data);
+//     alert("로그인에 실패했습니다. 다시 시도해주세요.");
+//   }
+// };
 
-// 컴포넌트 마운트 시 리스너 등록
-onMounted(() => {
-  window.addEventListener("message", handleLoginResult);
-});
+// // 컴포넌트 마운트 시 리스너 등록
+// onMounted(() => {
+//   window.addEventListener("message", handleLoginResult);
+// });
 
-// 컴포넌트 언마운트 시 리스너 제거
-onUnmounted(() => {
-  window.removeEventListener("message", handleLoginResult);
-});
+// // 컴포넌트 언마운트 시 리스너 제거
+// onUnmounted(() => {
+//   window.removeEventListener("message", handleLoginResult);
+// });
 
 const handleKakaoLogin = () => {
   // 서버의 카카오 로그인 엔드포인트로 직접 이동
   // 서버에서 res.redirect()로 카카오 로그인 페이지로 보내줌
+  // 로그인 완료 후 /my-cup 페이지로 자동 리다이렉트됨
   window.location.href = "http://localhost:3008/auth/kakao/login";
 };
 </script>

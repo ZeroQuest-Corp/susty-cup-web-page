@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-start: #11473F;
-  --color-end: #1E8374;
-  --color-count: #00B499;
+  --color-start: #11473f;
+  --color-end: #1e8374;
+  --color-count: #00b499;
 }
