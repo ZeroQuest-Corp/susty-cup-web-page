@@ -30,8 +30,7 @@ export interface LoginResponse
 // 토큰 갱신 응답 타입
 export interface RefreshTokenResponse
   extends ApiResponse<{
-    token: string;
-    expiresIn: number;
+    accessToken: string;
   }> {}
 
 // 사용자 상태 응답 타입
@@ -73,12 +72,9 @@ export class AuthAPI {
 
   /**
    * 토큰 갱신
-   * @param refreshToken 리프레시 토큰
    */
-  static async refreshToken(
-    refreshToken: string
-  ): Promise<RefreshTokenResponse> {
-    return api.post("/auth/refresh", { refreshToken });
+  static async refreshToken(): Promise<RefreshTokenResponse> {
+    return api.post("/auth/refresh");
   }
 
   /**

@@ -43,17 +43,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed } from "vue";
 import { useCupStats } from "@/composables/useCupStats";
 import background_cup from "@/assets/images/background_cup.png";
 import CupCount from "@/components/CupCount.vue";
 import CupMeritBox from "@/components/CupMeritBox.vue";
 import LoginGuideSection from "@/components/LoginGuideSection.vue";
 import UserInfoSection from "@/components/UserInfoSection.vue";
+import { useAuthStore } from "@/store/auth";
 
 const { usageCount, carbonReduced } = useCupStats();
+const authStore = useAuthStore();
 
-const isLoggedIn = ref(true);
+// store의 로그인 상태를 computed로 연결
+const isLoggedIn = computed(() => authStore.isLoggedIn);
 </script>
 
 <style scoped>

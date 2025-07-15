@@ -1,10 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "@/views/MainPage.vue";
-import Dashboard from "@/views/Dashboard.vue";
+import MainPage from "@/views/MainPage.vue";
 
 const routes = [
-  { path: "/", name: "Home", component: Home },
-  { path: "/dashboard", name: "Dashboard", component: Dashboard },
+  { path: "/", name: "MainPage", component: MainPage },
   // 필요하면 추가 라우트 삽입
 ];
 
@@ -23,9 +21,9 @@ router.beforeEach((to, from, next) => {
     // 토큰이 있으면 로컬 스토리지에 저장
     localStorage.setItem("auth_token", token as string);
 
-    // 대시보드로 이동 (쿼리 파라미터 제거)
-    if (to.path !== "/dashboard") {
-      next({ path: "/dashboard" });
+    // 홈으로 이동 (쿼리 파라미터 제거)
+    if (to.path !== "/") {
+      next({ path: "/" });
       return;
     }
   }

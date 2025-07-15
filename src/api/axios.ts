@@ -5,6 +5,7 @@ import axios, {
   type AxiosError,
   type InternalAxiosRequestConfig,
 } from "axios";
+import { useAuthStore } from "@/store/auth";
 
 // API 기본 설정
 const API_BASE_URL = "http://localhost:3008";
@@ -16,13 +17,15 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 // Request 인터셉터
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // 인증 토큰이 있으면 헤더에 추가
-    const token = localStorage.getItem("auth_token");
+    // store에서 인증 토큰 가져와서 헤더에 추가
+    const authStore = useAuthStore();
+    const token = authStore.accessToken;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -63,19 +66,8 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     console.error("❌ Response Error:", error);
 
-    // 401 Unauthorized - 토큰 만료 처리
-    if (error.response?.status === 401) {
-      console.warn("🔑 Token expired or invalid");
-
-      // 토큰 제거
-      localStorage.removeItem("auth_token");
-      localStorage.removeItem("user_info");
-
-      // 로그인 페이지로 리다이렉트 (필요시)
-      if (window.location.pathname !== "/") {
-        window.location.href = "/";
-      }
-    }
+    // 401 Unauthorized는 store의 인터셉터에서 처리됨
+    // (토큰 갱신 후 자동 재시도)
 
     // 403 Forbidden - 권한 없음
     if (error.response?.status === 403) {
