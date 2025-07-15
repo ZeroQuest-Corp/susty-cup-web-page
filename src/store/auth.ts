@@ -1,12 +1,13 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { AuthAPI } from "@/api/auth";
+import { AuthAPI, type UserInfo } from "@/api/auth";
 import axios from "@/api/axios";
 
 export const useAuthStore = defineStore("auth", () => {
   const isLoggedIn = ref(false);
   const accessToken = ref<string | null>(null);
   const exp = ref<number | null>(null);
+  const userInfo = ref<UserInfo | null>(null);
 
   /** 앱 부팅 시 호출 → refresh_token(쿠키) → 새 access_token */
   const init = async () => {
@@ -61,5 +62,15 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  return { accessToken, isLoggedIn, init, refresh };
+  const getUserInfo = async () => {
+    try {
+      const response = await AuthAPI.getCurrentUser();
+      userInfo.value = response.data;
+      console.log("사용자 정보 조회 결과:", response);
+    } catch (error) {
+      console.error("사용자 정보 조회 실패:", error);
+    }
+  };
+
+  return { accessToken, isLoggedIn, init, refresh, getUserInfo, userInfo };
 });

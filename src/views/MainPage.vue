@@ -33,7 +33,7 @@
       class="z-10 px-5 pt-8 pb-14 relative bg-white rounded-tl-2xl rounded-tr-2xl shadow-[0px_-8px_12px_0px_rgba(0,0,0,0.08)] flex flex-col justify-center items-center gap-14"
     >
       <div v-if="isLoggedIn">
-        <UserInfoSection />
+        <UserInfoSection :user="userInfo" />
       </div>
       <div v-else>
         <LoginGuideSection />
@@ -43,20 +43,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useCupStats } from "@/composables/useCupStats";
+import { computed, onMounted } from "vue";
+import { useAuthStore } from "@/store/auth";
 import background_cup from "@/assets/images/background_cup.png";
+import { useCupStats } from "@/composables/useCupStats";
 import CupCount from "@/components/CupCount.vue";
 import CupMeritBox from "@/components/CupMeritBox.vue";
 import LoginGuideSection from "@/components/LoginGuideSection.vue";
 import UserInfoSection from "@/components/UserInfoSection.vue";
-import { useAuthStore } from "@/store/auth";
 
 const { usageCount, carbonReduced } = useCupStats();
 const authStore = useAuthStore();
 
 // store의 로그인 상태를 computed로 연결
 const isLoggedIn = computed(() => authStore.isLoggedIn);
+const userInfo = computed(() => authStore.userInfo);
+
+onMounted(async () => {
+  if (isLoggedIn.value) {
+    await authStore.getUserInfo();
+  }
+});
 </script>
 
 <style scoped>

@@ -55,6 +55,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+import { type UserInfo } from "@/api/auth";
 import DownloadBox from "@/components/DownloadBox.vue";
 import NotificationBox from "@/components/NotificationBox.vue";
+
+const props = defineProps<{
+  user: UserInfo | null;
+}>();
+
+const isZqUser = computed(() => props.user?.is_zq_user);
 </script>

@@ -19,6 +19,15 @@ export interface KakaoUserInfo {
   };
 }
 
+export interface UserInfo {
+  uid: string;
+  kakao_id: string;
+  email: string;
+  nickname: string;
+  profile_image_url: string;
+  is_zq_user: boolean;
+}
+
 // 로그인 응답 타입
 export interface LoginResponse
   extends ApiResponse<{
@@ -32,6 +41,8 @@ export interface RefreshTokenResponse
   extends ApiResponse<{
     accessToken: string;
   }> {}
+
+export interface UserInfoResponse extends ApiResponse<UserInfo> {}
 
 // 사용자 상태 응답 타입
 export interface UserStatusResponse
@@ -59,7 +70,7 @@ export class AuthAPI {
   /**
    * 현재 로그인된 사용자 정보 가져오기
    */
-  static async getCurrentUser(): Promise<ApiResponse<KakaoUserInfo>> {
+  static async getCurrentUser(): Promise<UserInfoResponse> {
     return api.get("/auth/me");
   }
 
