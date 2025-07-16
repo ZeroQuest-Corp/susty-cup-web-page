@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, watch } from "vue";
 import { useAuthStore } from "@/store/auth";
 import background_cup from "@/assets/images/background_cup.png";
 import { useCupStats } from "@/composables/useCupStats";
@@ -59,11 +59,17 @@ const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
 
-onMounted(async () => {
-  if (isLoggedIn.value) {
-    await authStore.getUserInfo();
-  }
-});
+// 로그인 상태가 변경될 때 사용자 정보 조회
+watch(
+  isLoggedIn,
+  async (newValue) => {
+    if (newValue) {
+      console.log("로그인 상태 확인 - 사용자 정보 조회");
+      await authStore.getUserInfo();
+    }
+  },
+  { immediate: true }
+); // immediate: true로 초기 로딩 시에도 체크
 </script>
 
 <style scoped>

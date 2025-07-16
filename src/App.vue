@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
+import { RouterView } from "vue-router";
+import { onMounted } from "vue";
+import { useAuthStore } from "@/store/auth";
+
+const authStore = useAuthStore();
+
+// 앱 초기화 시 인증 상태를 복원
+onMounted(async () => {
+  await authStore.init();
+});
 </script>
 
 <template>

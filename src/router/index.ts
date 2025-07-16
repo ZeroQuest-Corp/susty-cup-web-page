@@ -18,8 +18,9 @@ router.beforeEach((to, from, next) => {
   const error = to.query.error;
 
   if (token) {
-    // 토큰이 있으면 로컬 스토리지에 저장
-    localStorage.setItem("auth_token", token as string);
+    // 카카오 로그인 성공 - 서버에서 쿠키로 refresh_token을 설정했으므로
+    // 별도 처리 없이 홈으로 이동 (store.init()에서 자동으로 토큰 갱신)
+    console.log("카카오 로그인 성공 - 홈으로 이동");
 
     // 홈으로 이동 (쿼리 파라미터 제거)
     if (to.path !== "/") {
