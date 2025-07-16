@@ -8,7 +8,7 @@ import axios, {
 import { useAuthStore } from "@/store/auth";
 
 // API 기본 설정
-const API_BASE_URL = "http://localhost:3008";
+const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
 
 // Axios 인스턴스 생성
 const apiClient: AxiosInstance = axios.create({
