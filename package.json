@@ -7,7 +7,7 @@
     "serve": "vite --mode locallocal",
     "serve:dev": "vite --mode development",
     "build:dev": "vite build --mode development",
-    "build": "vue-tsc -b && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
