@@ -21,6 +21,56 @@ export function useCupStats() {
     }
   };
 
+  // 로그인 후 스캔 세션 완료 (로그인 전에 태그한 경우)
+  const completeScanSession = async () => {
+    if (!cupStore.sessionId) {
+      console.warn("세션 ID가 없어 스캔 세션을 완료할 수 없습니다.");
+      return;
+    }
+
+    try {
+      const response = await CupAPI.completeScanSession(cupStore.sessionId);
+      if (response.data) {
+        cupStore.updateAfterScan(
+          response.data.cupCount,
+          response.data.cupId,
+          response.data.nextEligibleAt
+        );
+        console.log("스캔 세션 완료:", {
+          cupCount: response.data.cupCount,
+          cupId: response.data.cupId,
+          nextEligibleAt: response.data.nextEligibleAt,
+        });
+      }
+    } catch (error) {
+      console.error("Complete scan session failed:", error);
+    }
+  };
+
+  // 로그인된 상태에서 직접 태그 (이미 로그인한 상태에서 태그)
+  const completeScanTag = async (cupId: string) => {
+    try {
+      // nextEligibleAt은 현재 시간으로 설정 (서버에서 계산하지만 일단 전송)
+      const nextEligibleAt = new Date();
+      const response = await CupAPI.completeScanTag(cupId, nextEligibleAt);
+
+      if (response.data) {
+        cupStore.updateAfterScan(
+          response.data.cupCount,
+          response.data.cupId,
+          response.data.nextEligibleAt
+        );
+        console.log("태그 스캔 완료:", {
+          cupCount: response.data.cupCount,
+          cupId: response.data.cupId,
+          nextEligibleAt: response.data.nextEligibleAt,
+        });
+      }
+    } catch (error) {
+      console.error("Complete scan tag failed:", error);
+    }
+  };
+
   // 1) 사용 횟수와 탄소 절감량 (store에서 가져오기)
   const usageCount = computed(() => cupStore.cupCount);
   const carbonReduced = computed(() => cupStore.carbonReduced);
@@ -49,6 +99,8 @@ export function useCupStats() {
 
   return {
     getCupInit,
+    completeScanSession,
+    completeScanTag,
     usageCount,
     carbonReduced,
     steps,
@@ -57,5 +109,7 @@ export function useCupStats() {
     handlePrimaryAction,
     isEligibleForReward: computed(() => cupStore.isEligibleForReward),
     isInitialized: computed(() => cupStore.isInitialized),
+    sessionId: computed(() => cupStore.sessionId),
+    nextEligibleAt: computed(() => cupStore.nextEligibleAt),
   };
 }

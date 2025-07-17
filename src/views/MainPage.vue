@@ -53,7 +53,14 @@ import CupMeritBox from "@/components/CupMeritBox.vue";
 import LoginGuideSection from "@/components/LoginGuideSection.vue";
 import UserInfoSection from "@/components/UserInfoSection.vue";
 
-const { getCupInit, usageCount, carbonReduced } = useCupStats();
+const {
+  getCupInit,
+  completeScanSession,
+  completeScanTag,
+  usageCount,
+  carbonReduced,
+  sessionId,
+} = useCupStats();
 const authStore = useAuthStore();
 
 const route = useRoute();
@@ -63,21 +70,37 @@ const scanUuid = route.query.s as string | undefined;
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
 
-// 컴포넌트 마운트 시 scanUuid가 있으면 cup init API 호출
+// 컴포넌트 마운트 시 scanUuid가 있으면 로그인 상태에 따라 적절한 API 호출
 onMounted(async () => {
   if (scanUuid) {
-    console.log("스캔된 UUID로 컵 정보 초기화:", scanUuid);
-    await getCupInit(scanUuid);
+    console.log("스캔된 UUID 감지:", scanUuid);
+
+    if (isLoggedIn.value) {
+      // 이미 로그인된 상태: 바로 태그 완료
+      console.log("로그인된 상태에서 태그 - completeScanTag 호출");
+      await completeScanTag(scanUuid);
+    } else {
+      // 로그인되지 않은 상태: 컵 정보만 초기화
+      console.log("로그인 전 태그 - getCupInit 호출");
+      await getCupInit(scanUuid);
+    }
   }
 });
 
-// 로그인 상태가 변경될 때 사용자 정보 조회
+// 로그인 상태가 변경될 때 처리
 watch(
   isLoggedIn,
-  async (newValue) => {
-    if (newValue) {
+  async (newValue, oldValue) => {
+    if (newValue && !oldValue) {
+      // 로그인 성공
       console.log("로그인 상태 확인 - 사용자 정보 조회");
       await authStore.getUserInfo();
+
+      // 세션 ID가 있으면 스캔 세션 완료 (로그인 전에 태그했던 경우)
+      if (sessionId.value) {
+        console.log("로그인 후 스캔 세션 완료 - completeScanSession 호출");
+        await completeScanSession();
+      }
     }
   },
   { immediate: true }
