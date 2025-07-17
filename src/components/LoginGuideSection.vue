@@ -501,6 +501,8 @@ import { useCupStats } from "@/composables/useCupStats";
 import zqLogoMain from "@/assets/images/logo/zq_logo_main.png";
 import { useRouter } from "vue-router";
 
+const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
+
 const router = useRouter();
 const { usageCount } = useCupStats();
 
@@ -548,7 +550,7 @@ const handleKakaoLogin = () => {
   // 서버의 카카오 로그인 엔드포인트로 직접 이동
   // 서버에서 res.redirect()로 카카오 로그인 페이지로 보내줌
   // 로그인 완료 후 /my-cup 페이지로 자동 리다이렉트됨
-  window.location.href = "http://localhost:3008/auth/kakao/login";
+  window.location.href = `${API_BASE_URL}/auth/kakao/login`;
 };
 </script>
 
