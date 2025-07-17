@@ -43,7 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, watch, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import background_cup from "@/assets/images/background_cup.png";
 import { useCupStats } from "@/composables/useCupStats";
@@ -52,12 +53,23 @@ import CupMeritBox from "@/components/CupMeritBox.vue";
 import LoginGuideSection from "@/components/LoginGuideSection.vue";
 import UserInfoSection from "@/components/UserInfoSection.vue";
 
-const { usageCount, carbonReduced } = useCupStats();
+const { getCupInit, usageCount, carbonReduced } = useCupStats();
 const authStore = useAuthStore();
+
+const route = useRoute();
+const scanUuid = route.query.s as string | undefined;
 
 // store의 로그인 상태를 computed로 연결
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
+
+// 컴포넌트 마운트 시 scanUuid가 있으면 cup init API 호출
+onMounted(async () => {
+  if (scanUuid) {
+    console.log("스캔된 UUID로 컵 정보 초기화:", scanUuid);
+    await getCupInit(scanUuid);
+  }
+});
 
 // 로그인 상태가 변경될 때 사용자 정보 조회
 watch(

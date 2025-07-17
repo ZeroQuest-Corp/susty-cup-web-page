@@ -1,10 +1,29 @@
 // src/composables/useCupStats.ts
 import { ref, computed } from "vue";
+import { CupAPI } from "@/api";
+import { useCupStore } from "@/store/cup";
 
 export function useCupStats() {
-  // 1) 사용 횟수와 탄소 절감량
-  const usageCount = ref(25);
-  const carbonReduced = computed(() => 240); // 예시: 고정값 또는 API 호출 결과 바인딩
+  const cupStore = useCupStore();
+
+  const getCupInit = async (cupId: string) => {
+    try {
+      const response = await CupAPI.getCupInit(cupId);
+      if (response.data) {
+        cupStore.initializeCup(response.data.cupCount, response.data.sessionId);
+        console.log("컵 정보 초기화 완료:", {
+          cupCount: response.data.cupCount,
+          sessionId: response.data.sessionId,
+        });
+      }
+    } catch (error) {
+      console.error("Cup init failed:", error);
+    }
+  };
+
+  // 1) 사용 횟수와 탄소 절감량 (store에서 가져오기)
+  const usageCount = computed(() => cupStore.cupCount);
+  const carbonReduced = computed(() => cupStore.carbonReduced);
 
   // 2) 스텝 목록 & 현재 스텝 인덱스 (0부터 시작)
   const steps = ref([
@@ -29,11 +48,14 @@ export function useCupStats() {
   };
 
   return {
+    getCupInit,
     usageCount,
     carbonReduced,
     steps,
     currentStep,
     infoItems,
     handlePrimaryAction,
+    isEligibleForReward: computed(() => cupStore.isEligibleForReward),
+    isInitialized: computed(() => cupStore.isInitialized),
   };
 }

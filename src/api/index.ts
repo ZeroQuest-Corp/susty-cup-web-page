@@ -27,6 +27,6 @@ export {
 } from "./auth";
 
 // 향후 추가될 다른 API 모듈들
-// export * from './susty-cup';
+export * from "./cup";
 // export * from './rewards';
 // export * from './analytics';
