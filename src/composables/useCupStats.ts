@@ -22,14 +22,14 @@ export function useCupStats() {
   };
 
   // 로그인 후 스캔 세션 완료 (로그인 전에 태그한 경우)
-  const completeScanSession = async () => {
-    if (!cupStore.sessionId) {
+  const completeScanSession = async (sessionId: string) => {
+    if (!sessionId) {
       console.warn("세션 ID가 없어 스캔 세션을 완료할 수 없습니다.");
       return;
     }
 
     try {
-      const response = await CupAPI.completeScanSession(cupStore.sessionId);
+      const response = await CupAPI.completeScanSession(sessionId);
       if (response.data) {
         cupStore.updateAfterScan(
           response.data.cupCount,

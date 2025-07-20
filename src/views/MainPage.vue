@@ -36,7 +36,7 @@
         <UserInfoSection :user="userInfo" />
       </div>
       <div v-else>
-        <LoginGuideSection />
+        <LoginGuideSection :sessionId="sessionId" />
       </div>
     </div>
   </div>
@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { computed, watch, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import background_cup from "@/assets/images/background_cup.png";
 import { useCupStats } from "@/composables/useCupStats";
@@ -64,27 +64,37 @@ const {
 const authStore = useAuthStore();
 
 const route = useRoute();
+const router = useRouter();
 const scanUuid = route.query.s as string | undefined;
+const sessionIdRaw = route.query.state as string | undefined;
 
 // store의 로그인 상태를 computed로 연결
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
 
-// 컴포넌트 마운트 시 scanUuid가 있으면 로그인 상태에 따라 적절한 API 호출
-onMounted(async () => {
-  if (scanUuid) {
-    console.log("스캔된 UUID 감지:", scanUuid);
+// URL 파라미터 제거 함수
+const removeUrlParams = () => {
+  const currentQuery = { ...route.query };
+  let shouldReplace = false;
 
-    if (isLoggedIn.value) {
-      // 이미 로그인된 상태: 바로 태그 완료
-      console.log("로그인된 상태에서 태그 - completeScanTag 호출");
-      await completeScanTag(scanUuid);
-    } else {
-      // 로그인되지 않은 상태: 컵 정보만 초기화
-      console.log("로그인 전 태그 - getCupInit 호출");
-      await getCupInit(scanUuid);
-    }
+  if (currentQuery.s) {
+    delete currentQuery.s;
+    shouldReplace = true;
   }
+
+  if (currentQuery.state) {
+    delete currentQuery.state;
+    shouldReplace = true;
+  }
+
+  if (shouldReplace) {
+    router.replace({ query: currentQuery });
+  }
+};
+
+// 컴포넌트 마운트 시에는 아무것도 처리하지 않음 (로그인 상태 확인 후에 처리)
+onMounted(async () => {
+  console.log("MainPage mounted - 로그인 상태 확인 대기 중");
 });
 
 // 로그인 상태가 변경될 때 처리
@@ -92,19 +102,53 @@ watch(
   isLoggedIn,
   async (newValue, oldValue) => {
     if (newValue && !oldValue) {
-      // 로그인 성공
+      // 로그인 성공 (false -> true)
       console.log("로그인 상태 확인 - 사용자 정보 조회");
       await authStore.getUserInfo();
 
-      // 세션 ID가 있으면 스캔 세션 완료 (로그인 전에 태그했던 경우)
-      if (sessionId.value) {
-        console.log("로그인 후 스캔 세션 완료 - completeScanSession 호출");
-        await completeScanSession();
+      // 로그인 후 sessionIdRaw가 있으면 스캔 세션 완료 처리
+      if (sessionIdRaw) {
+        console.log(
+          "로그인 후 sessionIdRaw 처리 - completeScanSession 호출:",
+          sessionIdRaw
+        );
+        await completeScanSession(sessionIdRaw);
       }
+
+      // 로그인 후 scanUuid가 있으면 태그 완료 처리
+      if (scanUuid) {
+        console.log("로그인된 상태에서 태그 - completeScanTag 호출");
+        await completeScanTag(scanUuid);
+      }
+
+      // 처리 완료 후 URL 파라미터 제거
+      removeUrlParams();
+    } else if (newValue && oldValue === undefined) {
+      // 초기 로딩 시 이미 로그인된 상태 (undefined -> true)
+      console.log("초기 로딩 시 로그인 상태 확인 - 사용자 정보 조회");
+      await authStore.getUserInfo();
+
+      // 초기 로딩 시에도 scanUuid가 있으면 태그 완료 처리
+      if (scanUuid) {
+        console.log(
+          "초기 로딩 시 로그인된 상태에서 태그 - completeScanTag 호출"
+        );
+        await completeScanTag(scanUuid);
+      }
+
+      // 처리 완료 후 URL 파라미터 제거
+      removeUrlParams();
+    } else if (!newValue && oldValue === undefined && scanUuid) {
+      // 초기 로딩 시 로그인되지 않은 상태 (undefined -> false)
+      console.log("초기 로딩 시 로그인 전 태그 - getCupInit 호출");
+      await getCupInit(scanUuid);
+
+      // 익명 태그는 URL 파라미터를 유지 (로그인 후 처리를 위해)
+      // removeUrlParams();
     }
   },
   { immediate: true }
-); // immediate: true로 초기 로딩 시에도 체크
+);
 </script>
 
 <style scoped>
