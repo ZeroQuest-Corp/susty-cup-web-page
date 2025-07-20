@@ -25,9 +25,8 @@ export class CupAPI {
   }
 
   static async completeScanTag(
-    cupId: string,
-    nextEligibleAt: Date
+    cupId: string
   ): Promise<CompleteScanSessionResponse> {
-    return api.post(`/cup/tag`, { cupId, nextEligibleAt });
+    return api.post(`/cup/tag`, { cupId });
   }
 }

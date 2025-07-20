@@ -50,9 +50,7 @@ export function useCupStats() {
   // 로그인된 상태에서 직접 태그 (이미 로그인한 상태에서 태그)
   const completeScanTag = async (cupId: string) => {
     try {
-      // nextEligibleAt은 현재 시간으로 설정 (서버에서 계산하지만 일단 전송)
-      const nextEligibleAt = new Date();
-      const response = await CupAPI.completeScanTag(cupId, nextEligibleAt);
+      const response = await CupAPI.completeScanTag(cupId);
 
       if (response.data) {
         cupStore.updateAfterScan(
