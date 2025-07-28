@@ -50,7 +50,7 @@
       </div>
     </div>
     <!-- NFT 구매 안내 (리워드 자격이 있지만 NFT가 없는 경우) -->
-    <div v-if="isEligibleForReward && !user?.is_susty_cup_nft" class="mt-4">
+    <div v-if="isEligibleForReward && !user?.is_sustycup_nft" class="mt-4">
       <NftPurchaseGuide />
     </div>
     <DownloadBox />
@@ -71,5 +71,5 @@ const props = defineProps<{
 }>();
 
 const { isEligibleForReward } = useCupStats();
-const isSustyCupNft = computed(() => props.user?.is_susty_cup_nft);
+const isSustyCupNft = computed(() => props.user?.is_sustycup_nft);
 </script>

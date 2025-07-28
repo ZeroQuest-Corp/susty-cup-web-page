@@ -7,19 +7,19 @@ export const useUserStore = defineStore("user", () => {
   const checkSustyCupNft = async (): Promise<boolean> => {
     const response = await UserAPI.checkSustyCupNft();
     if (authStore.userInfo) {
-      authStore.userInfo.is_susty_cup_nft = response.data;
-      return authStore.userInfo.is_susty_cup_nft;
+      authStore.userInfo.is_sustycup_nft = response.data.isSustycupNft;
+      authStore.userInfo.is_zq_user = response.data.isZqUser;
+      return true;
     }
     return false;
   };
 
-  const updateSustyCupNft = async (
-    isSustyCupNft: boolean
-  ): Promise<boolean> => {
-    const response = await UserAPI.updateSustyCupNft(isSustyCupNft);
+  const updateSustyCupNft = async (): Promise<boolean> => {
+    const response = await UserAPI.updateSustyCupNft();
     if (authStore.userInfo) {
-      authStore.userInfo.is_susty_cup_nft = response.data;
-      return authStore.userInfo.is_susty_cup_nft;
+      authStore.userInfo.is_sustycup_nft = response.data.isSustycupNft;
+      authStore.userInfo.is_zq_user = response.data.isZqUser;
+      return true;
     }
     return false;
   };

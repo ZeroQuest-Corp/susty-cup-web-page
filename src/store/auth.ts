@@ -69,7 +69,7 @@ export const useAuthStore = defineStore("auth", () => {
       console.log("사용자 정보 조회 결과:", response);
 
       // NFT 상태가 false이거나 없는 경우 블록체인에서 재확인
-      if (!userInfo.value?.is_susty_cup_nft) {
+      if (!userInfo.value?.is_sustycup_nft) {
         console.log("NFT 상태 확인 필요 - checkSustyCupNft 호출 권장");
         // 여기서 직접 호출하면 순환 참조 가능성이 있으므로
         // MainPage나 다른 컴포넌트에서 처리하는 것이 좋음

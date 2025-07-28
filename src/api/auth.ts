@@ -25,7 +25,8 @@ export interface UserInfo {
   email: string;
   nickname: string;
   profile_image_url: string;
-  is_susty_cup_nft: boolean;
+  is_sustycup_nft: boolean;
+  is_zq_user: boolean;
 }
 
 // 로그인 응답 타입

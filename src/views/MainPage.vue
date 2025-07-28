@@ -98,7 +98,7 @@ const removeUrlParams = () => {
 onMounted(async () => {
   console.log("MainPage mounted - 로그인 상태 확인 대기 중");
   // 이미 로그인된 상태에서 초기 로딩 시 NFT 상태 확인
-  if (isLoggedIn.value && userInfo.value && !userInfo.value.is_susty_cup_nft) {
+  if (isLoggedIn.value && userInfo.value && !userInfo.value.is_sustycup_nft) {
     console.log("초기 로딩 시 NFT 상태 확인");
     await userStore.checkSustyCupNft();
   }
@@ -114,9 +114,10 @@ watch(
       await authStore.getUserInfo();
 
       // 로그인 직후 NFT 상태 확인 (필수)
-      if (!userInfo.value?.is_susty_cup_nft) {
+      if (!userInfo.value?.is_sustycup_nft) {
         console.log("로그인 후 NFT 상태 확인");
-        await userStore.checkSustyCupNft();
+        // await userStore.checkSustyCupNft();
+        await userStore.updateSustyCupNft();
       }
 
       // 로그인 후 sessionIdRaw가 있으면 스캔 세션 완료 처리
@@ -142,9 +143,10 @@ watch(
       await authStore.getUserInfo();
 
       // 초기 로딩에서도 NFT 상태 확인
-      if (!userInfo.value?.is_susty_cup_nft) {
+      if (!userInfo.value?.is_sustycup_nft) {
         console.log("초기 로딩 시 NFT 상태 확인");
-        await userStore.checkSustyCupNft();
+        // await userStore.checkSustyCupNft();
+        await userStore.updateSustyCupNft();
       }
 
       // 초기 로딩 시에도 scanUuid가 있으면 태그 완료 처리

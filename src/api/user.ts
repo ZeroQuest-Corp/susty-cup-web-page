@@ -5,11 +5,7 @@ export class UserAPI {
     return api.get("/user/check/sustycup-nft");
   }
 
-  static async updateSustyCupNft(
-    isSustyCupNft: boolean
-  ): Promise<ApiResponse<boolean>> {
-    return api.post("/user/update/sustycup-nft", {
-      is_susty_cup_nft: isSustyCupNft,
-    });
+  static async updateSustyCupNft(): Promise<ApiResponse<boolean>> {
+    return api.post("/user/update/sustycup-nft");
   }
 }
