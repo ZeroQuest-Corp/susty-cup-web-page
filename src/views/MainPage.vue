@@ -39,6 +39,7 @@
         <LoginGuideSection :sessionId="sessionId" />
       </div>
     </div>
+    <Modal />
   </div>
 </template>
 
@@ -53,6 +54,7 @@ import CupMeritBox from "@/components/CupMeritBox.vue";
 import LoginGuideSection from "@/components/LoginGuideSection.vue";
 import UserInfoSection from "@/components/UserInfoSection.vue";
 import { useUserStore } from "@/store/user";
+import Modal from "@/components/Modal.vue";
 
 const {
   getCupInit,
