@@ -2,7 +2,7 @@
   <div class="w-full flex flex-col justify-start items-start">
     <!--  유저 정보보 박스 -->
     <div
-      v-if="isZqUser"
+      v-if="isSustyCupNft"
       class="w-full h-full flex flex-col items-center justify-between bg-[#69CEBF] rounded-xl p-4 mb-6"
     >
       <div class="w-full h-full flex items-center justify-between mb-4">
@@ -49,6 +49,10 @@
         </div>
       </div>
     </div>
+    <!-- NFT 구매 안내 (리워드 자격이 있지만 NFT가 없는 경우) -->
+    <div v-if="isEligibleForReward && !user?.is_susty_cup_nft" class="mt-4">
+      <NftPurchaseGuide />
+    </div>
     <DownloadBox />
     <NotificationBox />
   </div>
@@ -59,10 +63,13 @@ import { computed } from "vue";
 import { type UserInfo } from "@/api/auth";
 import DownloadBox from "@/components/DownloadBox.vue";
 import NotificationBox from "@/components/NotificationBox.vue";
+import NftPurchaseGuide from "@/components/NftPurchaseGuide.vue";
+import { useCupStats } from "@/composables/useCupStats";
 
 const props = defineProps<{
   user: UserInfo | null;
 }>();
 
-const isZqUser = computed(() => props.user?.is_zq_user);
+const { isEligibleForReward } = useCupStats();
+const isSustyCupNft = computed(() => props.user?.is_susty_cup_nft);
 </script>

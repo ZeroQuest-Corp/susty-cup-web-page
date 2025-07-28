@@ -52,6 +52,7 @@ import CupCount from "@/components/CupCount.vue";
 import CupMeritBox from "@/components/CupMeritBox.vue";
 import LoginGuideSection from "@/components/LoginGuideSection.vue";
 import UserInfoSection from "@/components/UserInfoSection.vue";
+import { useUserStore } from "@/store/user";
 
 const {
   getCupInit,
@@ -62,6 +63,7 @@ const {
   sessionId,
 } = useCupStats();
 const authStore = useAuthStore();
+const userStore = useUserStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -95,6 +97,11 @@ const removeUrlParams = () => {
 // 컴포넌트 마운트 시에는 아무것도 처리하지 않음 (로그인 상태 확인 후에 처리)
 onMounted(async () => {
   console.log("MainPage mounted - 로그인 상태 확인 대기 중");
+  // 이미 로그인된 상태에서 초기 로딩 시 NFT 상태 확인
+  if (isLoggedIn.value && userInfo.value && !userInfo.value.is_susty_cup_nft) {
+    console.log("초기 로딩 시 NFT 상태 확인");
+    await userStore.checkSustyCupNft();
+  }
 });
 
 // 로그인 상태가 변경될 때 처리
@@ -105,6 +112,12 @@ watch(
       // 로그인 성공 (false -> true)
       console.log("로그인 상태 확인 - 사용자 정보 조회");
       await authStore.getUserInfo();
+
+      // 로그인 직후 NFT 상태 확인 (필수)
+      if (!userInfo.value?.is_susty_cup_nft) {
+        console.log("로그인 후 NFT 상태 확인");
+        await userStore.checkSustyCupNft();
+      }
 
       // 로그인 후 sessionIdRaw가 있으면 스캔 세션 완료 처리
       if (sessionIdRaw) {
@@ -127,6 +140,12 @@ watch(
       // 초기 로딩 시 이미 로그인된 상태 (undefined -> true)
       console.log("초기 로딩 시 로그인 상태 확인 - 사용자 정보 조회");
       await authStore.getUserInfo();
+
+      // 초기 로딩에서도 NFT 상태 확인
+      if (!userInfo.value?.is_susty_cup_nft) {
+        console.log("초기 로딩 시 NFT 상태 확인");
+        await userStore.checkSustyCupNft();
+      }
 
       // 초기 로딩 시에도 scanUuid가 있으면 태그 완료 처리
       if (scanUuid) {
