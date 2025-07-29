@@ -2,12 +2,11 @@
 import { ref, computed } from "vue";
 import { CupAPI } from "@/api";
 import { useCupStore } from "@/store/cup";
-import { useModalStore } from "@/store/modal";
-import { AxiosError } from "axios";
+import { handleCupApiError } from "@/utils";
 
 export function useCupStats() {
   const cupStore = useCupStore();
-  const modalStore = useModalStore();
+
   const getCupInit = async (cupId: string) => {
     try {
       const response = await CupAPI.getCupInit(cupId);
@@ -19,7 +18,7 @@ export function useCupStats() {
         });
       }
     } catch (error) {
-      console.error("Cup init failed:", error);
+      handleCupApiError(error, "init");
     }
   };
 
@@ -45,7 +44,7 @@ export function useCupStats() {
         });
       }
     } catch (error) {
-      console.error("Complete scan session failed:", error);
+      handleCupApiError(error, "session");
     }
   };
 
@@ -67,11 +66,7 @@ export function useCupStats() {
         });
       }
     } catch (error) {
-      console.error("Complete scan tag failed:", error);
-      if (error instanceof AxiosError && error.response?.status === 601) {
-        console.log("601 에러 발생");
-        modalStore.openModal();
-      }
+      handleCupApiError(error, "tag");
     }
   };
 
