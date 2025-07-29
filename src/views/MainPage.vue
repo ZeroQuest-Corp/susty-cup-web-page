@@ -6,7 +6,7 @@
       <!-- 배경 이미지 -->
       <div class="absolute inset-0 bg-no-repeat bg-center bg-contain">
         <img
-          :src="background_cup"
+          :src="backgroundCup"
           alt="Background Cup"
           class="w-full h-full object-contain grayscale"
         />
@@ -29,16 +29,14 @@
         <CupMeritBox />
       </div>
     </div>
+
     <div
       class="z-10 px-5 pt-8 pb-14 relative bg-white rounded-tl-2xl rounded-tr-2xl shadow-[0px_-8px_12px_0px_rgba(0,0,0,0.08)] flex flex-col justify-center items-center gap-14"
     >
-      <div v-if="isLoggedIn">
-        <UserInfoSection :user="userInfo" />
-      </div>
-      <div v-else>
-        <LoginGuideSection :sessionId="sessionId" />
-      </div>
+      <UserInfoSection v-if="isLoggedIn" :user="userInfo" />
+      <LoginGuideSection v-else :sessionId="sessionId" />
     </div>
+
     <Modal />
   </div>
 </template>
@@ -47,17 +45,19 @@
 import { computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
-import background_cup from "@/assets/images/background_cup.png";
+import { useUserStore } from "@/store/user";
+import { useModalStore } from "@/store/modal";
+import backgroundCup from "@/assets/images/background_cup.png";
 import { useCupStats } from "@/composables/useCupStats";
 import CupCount from "@/components/CupCount.vue";
 import CupMeritBox from "@/components/CupMeritBox.vue";
 import LoginGuideSection from "@/components/LoginGuideSection.vue";
 import UserInfoSection from "@/components/UserInfoSection.vue";
-import { useUserStore } from "@/store/user";
 import Modal from "@/components/Modal.vue";
 
+// Composable & Store
 const {
-  getCupInit,
+  safeInitCup,
   completeScanSession,
   completeScanTag,
   usageCount,
@@ -66,114 +66,87 @@ const {
 } = useCupStats();
 const authStore = useAuthStore();
 const userStore = useUserStore();
+const modalStore = useModalStore();
 
+// Router & Query Params
 const route = useRoute();
 const router = useRouter();
-const scanUuid = route.query.s as string | undefined;
-const sessionIdRaw = route.query.state as string | undefined;
+const cupId = route.query.s as string | undefined;
+const sessionIdRaw = route.query.sid as string | undefined;
 
-// store의 로그인 상태를 computed로 연결
+// Reactive State
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
 
-// URL 파라미터 제거 함수
-const removeUrlParams = () => {
-  const currentQuery = { ...route.query };
-  let shouldReplace = false;
+// URL 파라미터 제거
+function removeUrlParams() {
+  const query = { ...route.query };
+  if (query.s) delete query.s;
+  if (query.sid) delete query.sid;
+  router.replace({ query });
+}
 
-  if (currentQuery.s) {
-    delete currentQuery.s;
-    shouldReplace = true;
+// 로그인 사용자 흐름 처리
+async function handleAuthenticatedFlow(): Promise<boolean> {
+  await authStore.getUserInfo();
+
+  if (!authStore.canTagNow()) {
+    modalStore.openCountdownModal(authStore.nextEligibleAt!);
+    return true;
   }
 
-  if (currentQuery.state) {
-    delete currentQuery.state;
-    shouldReplace = true;
+  if (!userInfo.value?.is_sustycup_nft) {
+    await userStore.updateSustyCupNft();
   }
 
-  if (shouldReplace) {
-    router.replace({ query: currentQuery });
+  if (sessionIdRaw) {
+    await completeScanSession(sessionIdRaw);
   }
-};
 
-// 컴포넌트 마운트 시에는 아무것도 처리하지 않음 (로그인 상태 확인 후에 처리)
+  if (cupId) {
+    await completeScanTag(cupId);
+  }
+
+  return false;
+}
+
+// 익명 사용자 초기화 흐름 처리
+async function handleAnonymousInit() {
+  if (!cupId) return;
+  await safeInitCup(cupId);
+  if (!sessionId.value) {
+    removeUrlParams();
+  }
+}
+
+// 초기 마운트 시 NFT 확인
 onMounted(async () => {
-  console.log("MainPage mounted - 로그인 상태 확인 대기 중");
-  // 이미 로그인된 상태에서 초기 로딩 시 NFT 상태 확인
   if (isLoggedIn.value && userInfo.value && !userInfo.value.is_sustycup_nft) {
-    console.log("초기 로딩 시 NFT 상태 확인");
-    await userStore.checkSustyCupNft();
+    await userStore.updateSustyCupNft();
   }
 });
 
-// 로그인 상태가 변경될 때 처리
+// 로그인 상태 변동 감시
 watch(
   isLoggedIn,
-  async (newValue, oldValue) => {
-    if (newValue && !oldValue) {
-      // 로그인 성공 (false -> true)
-      console.log("로그인 상태 확인 - 사용자 정보 조회");
-      await authStore.getUserInfo();
-
-      // 로그인 직후 NFT 상태 확인 (필수)
-      if (!userInfo.value?.is_sustycup_nft) {
-        console.log("로그인 후 NFT 상태 확인");
-        // await userStore.checkSustyCupNft();
-        await userStore.updateSustyCupNft();
+  async (newVal, oldVal) => {
+    if (newVal) {
+      const interrupted = await handleAuthenticatedFlow();
+      if (interrupted) {
+        removeUrlParams();
+        return;
       }
-
-      // 로그인 후 sessionIdRaw가 있으면 스캔 세션 완료 처리
-      if (sessionIdRaw) {
-        console.log(
-          "로그인 후 sessionIdRaw 처리 - completeScanSession 호출:",
-          sessionIdRaw
-        );
-        await completeScanSession(sessionIdRaw);
-      }
-
-      // 로그인 후 scanUuid가 있으면 태그 완료 처리
-      if (scanUuid) {
-        console.log("로그인된 상태에서 태그 - completeScanTag 호출");
-        await completeScanTag(scanUuid);
-      }
-
-      // 처리 완료 후 URL 파라미터 제거
-      removeUrlParams();
-    } else if (newValue && oldValue === undefined) {
-      // 초기 로딩 시 이미 로그인된 상태 (undefined -> true)
-      console.log("초기 로딩 시 로그인 상태 확인 - 사용자 정보 조회");
-      await authStore.getUserInfo();
-
-      // 초기 로딩에서도 NFT 상태 확인
-      if (!userInfo.value?.is_sustycup_nft) {
-        console.log("초기 로딩 시 NFT 상태 확인");
-        // await userStore.checkSustyCupNft();
-        await userStore.updateSustyCupNft();
-      }
-
-      // 초기 로딩 시에도 scanUuid가 있으면 태그 완료 처리
-      if (scanUuid) {
-        console.log(
-          "초기 로딩 시 로그인된 상태에서 태그 - completeScanTag 호출"
-        );
-        await completeScanTag(scanUuid);
-      }
-
-      // 처리 완료 후 URL 파라미터 제거
-      removeUrlParams();
-    } else if (!newValue && oldValue === undefined && scanUuid) {
-      // 초기 로딩 시 로그인되지 않은 상태 (undefined -> false)
-      console.log("초기 로딩 시 로그인 전 태그 - getCupInit 호출");
-      await getCupInit(scanUuid);
-
-      // 익명 태그는 URL 파라미터를 유지 (로그인 후 처리를 위해)
-      // removeUrlParams();
+    } else if (oldVal === undefined) {
+      await handleAnonymousInit();
+      return;
     }
+
+    removeUrlParams();
   },
   { immediate: true }
 );
 </script>
 
 <style scoped>
-/* Tailwind CSS 사용으로 별도 스타일 불필요 */
+/* Tailwind를 사용하므로 별도 스타일 불필요 */
 </style>

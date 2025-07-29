@@ -25,14 +25,14 @@
               class="bg-gray-400 rounded-lg w-12 h-12 flex items-center justify-center"
             >
               <span class="text-white text-2xl font-bold font-mono">{{
-                hours
+                minutes[0] || "0"
               }}</span>
             </div>
             <div
               class="bg-gray-400 rounded-lg w-12 h-12 flex items-center justify-center"
             >
               <span class="text-white text-2xl font-bold font-mono">{{
-                minutes
+                minutes[1] || "0"
               }}</span>
             </div>
             <div class="text-gray-700 text-2xl font-bold mx-1">:</div>
@@ -40,14 +40,14 @@
               class="bg-gray-400 rounded-lg w-12 h-12 flex items-center justify-center"
             >
               <span class="text-white text-2xl font-bold font-mono">{{
-                seconds
+                seconds[0]
               }}</span>
             </div>
             <div
               class="bg-gray-400 rounded-lg w-12 h-12 flex items-center justify-center"
             >
               <span class="text-white text-2xl font-bold font-mono">{{
-                centiseconds
+                seconds[1]
               }}</span>
             </div>
           </div>
@@ -118,10 +118,8 @@ const modalType = computed(() => modalStore.modalType);
 const modalData = computed(() => modalStore.modalData);
 
 // 카운트다운 타이머 상태
-const hours = ref("0");
-const minutes = ref("0");
-const seconds = ref("0");
-const centiseconds = ref("0");
+const minutes = ref("00");
+const seconds = ref("00");
 let countdownInterval: number | null = null;
 
 const closeModal = () => {
@@ -143,22 +141,21 @@ const updateCountdown = () => {
     return;
   }
 
-  const hoursLeft = Math.floor(difference / (1000 * 60 * 60));
-  const minutesLeft = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-  const secondsLeft = Math.floor((difference % (1000 * 60)) / 1000);
-  const centisecondsLeft = Math.floor((difference % 1000) / 10);
+  // 시간을 고려하여 분과 초 계산 (분은 최대 59분까지만 표시)
+  const totalSeconds = Math.floor(difference / 1000);
+  const minutesLeft = Math.floor(totalSeconds / 60) % 60; // 60으로 나눈 나머지로 0-59 범위
+  const secondsLeft = totalSeconds % 60;
 
-  hours.value = hoursLeft.toString();
-  minutes.value = minutesLeft.toString();
-  seconds.value = secondsLeft.toString();
-  centiseconds.value = centisecondsLeft.toString().padStart(2, "0");
+  // 분과 초를 2자리 문자열로 변환 (각 자리수에 접근하기 위해)
+  minutes.value = minutesLeft.toString().padStart(2, "0");
+  seconds.value = secondsLeft.toString().padStart(2, "0");
 };
 
 // 카운트다운 모달이 열릴 때 타이머 시작
 watch([isOpen, modalType], ([newIsOpen, newModalType]) => {
   if (newIsOpen && newModalType === "countdown") {
     updateCountdown();
-    countdownInterval = setInterval(updateCountdown, 10); // 10ms 간격으로 업데이트
+    countdownInterval = setInterval(updateCountdown, 1000); // 1초 간격으로 업데이트
   } else if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;

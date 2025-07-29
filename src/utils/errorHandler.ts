@@ -4,8 +4,16 @@ import { useModalStore } from "@/store/modal";
 export interface ErrorContext {
   operation: string;
   customMessages?: {
-    [statusCode: number]: string;
+    [errorCode: number]: string;
   };
+}
+
+// 서버 에러 응답 타입
+export interface ServerErrorResponse {
+  code: number;
+  key: string;
+  message: string;
+  nextEligibleAt?: string; // 601 에러 시 다음 사용 가능 시간 (ISO 8601 문자열)
 }
 
 /**
@@ -13,38 +21,72 @@ export interface ErrorContext {
  * @param error - 발생한 에러
  * @param context - 에러 발생 컨텍스트 (operation 이름과 커스텀 메시지)
  */
-export const handleApiError = (
-  error: unknown,
-  context: ErrorContext | string = ""
-) => {
+export const handleApiError = (error: unknown) => {
   const modalStore = useModalStore();
 
-  // context가 문자열이면 기본 ErrorContext로 변환
-  const errorContext: ErrorContext =
-    typeof context === "string" ? { operation: context } : context;
-
-  console.error(`${errorContext.operation} failed:`, error);
-
   if (error instanceof AxiosError && error.response) {
-    const status = error.response.status;
-    const errorData = error.response.data;
+    const httpStatus = error.response.status;
+    const errorData = error.response.data as ServerErrorResponse;
 
-    // 커스텀 메시지가 있으면 우선 사용
-    if (errorContext.customMessages?.[status]) {
-      modalStore.openErrorModal(status, errorContext.customMessages[status]);
+    // 서버에서 커스텀 에러 코드를 보냈는지 확인
+    if (errorData?.code && errorData?.key && errorData?.message) {
+      const serverErrorCode = errorData.code;
+      const errorKey = errorData.key;
+      const errorMessage = errorData.message;
+
+      console.log(
+        `서버 에러 코드: ${serverErrorCode}, 키: ${errorKey}, 메시지: ${errorMessage}`
+      );
+
+      // 커스텀 메시지가 있으면 우선 사용
+      if (errorMessage) {
+        modalStore.openErrorModal(serverErrorCode, errorMessage);
+        return;
+      }
+
+      // 서버 커스텀 에러 코드별 처리
+      switch (serverErrorCode) {
+        case 601:
+          modalStore.openErrorModal(601, errorMessage);
+          break;
+
+        case 602:
+          // TODO: 사용자가 정의할 에러 처리
+          modalStore.openErrorModal(602, errorMessage);
+          break;
+
+        case 603:
+          // TODO: 사용자가 정의할 에러 처리
+          modalStore.openErrorModal(603, errorMessage);
+          break;
+
+        case 604:
+          // TODO: 사용자가 정의할 에러 처리
+          modalStore.openErrorModal(604, errorMessage);
+          break;
+
+        case 605:
+          // TODO: 사용자가 정의할 에러 처리
+          modalStore.openErrorModal(605, errorMessage);
+          break;
+
+        default:
+          // 정의되지 않은 서버 에러 코드
+          modalStore.openErrorModal(
+            serverErrorCode,
+            errorMessage ||
+              `서버 에러가 발생했습니다. (코드: ${serverErrorCode})`
+          );
+          break;
+      }
+
       return;
     }
 
-    switch (status) {
-      case 601:
-        // 601 에러 - 카운트다운 모달 표시
-        console.log("601 에러 - 사용 제한 시간 확인");
-        const nextEligibleAt = errorData?.nextEligibleAt
-          ? new Date(errorData.nextEligibleAt)
-          : new Date(Date.now() + 5 * 60 * 1000); // 기본 5분 후
-        modalStore.openCountdownModal(nextEligibleAt);
-        break;
+    // 서버에서 커스텀 에러 포맷을 보내지 않은 경우 기존 HTTP 상태코드로 처리
+    console.log("HTTP 상태코드로 에러 처리:", httpStatus);
 
+    switch (httpStatus) {
       case 400:
         modalStore.openErrorModal(
           400,
@@ -92,16 +134,17 @@ export const handleApiError = (
       case 503:
       case 504:
         modalStore.openErrorModal(
-          status,
+          httpStatus,
           "서버가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요."
         );
         break;
 
       default:
-        // 기타 에러
+        // 기타 HTTP 에러
         modalStore.openErrorModal(
-          status,
-          errorData?.message || `알 수 없는 오류가 발생했습니다. (${status})`
+          httpStatus,
+          errorData?.message ||
+            `알 수 없는 오류가 발생했습니다. (HTTP ${httpStatus})`
         );
         break;
     }
@@ -114,35 +157,33 @@ export const handleApiError = (
 /**
  * 컵 관련 API 에러 처리 (컨텍스트에 따른 커스텀 메시지)
  */
-export const handleCupApiError = (
-  error: unknown,
-  operation: "init" | "session" | "tag"
-) => {
-  const customMessages: { [key: number]: string } = {};
+// export const handleCupApiError = (
+//   error: unknown,
+//   operation: "init" | "session" | "tag"
+// ) => {
+//   const customMessages: { [key: number]: string } = {};
 
-  switch (operation) {
-    case "init":
-      customMessages[404] =
-        "해당 컵을 찾을 수 없습니다. 올바른 QR코드인지 확인해주세요.";
-      customMessages[400] = "잘못된 QR코드입니다. 다시 확인해주세요.";
-      break;
+//   switch (operation) {
+//     case "init":
+//       // 서버 에러 코드별 커스텀 메시지
+//       customMessages[601] =
+//         "해당 컵을 찾을 수 없습니다. 올바른 QR코드인지 확인해주세요.";
+//       customMessages[602] = "잘못된 QR코드입니다. 다시 확인해주세요.";
+//       break;
 
-    case "session":
-      customMessages[404] = "세션을 찾을 수 없습니다. 다시 태그해주세요.";
-      customMessages[403] =
-        "세션을 완료할 권한이 없습니다. 로그인 상태를 확인해주세요.";
-      break;
+//     case "session":
+//       customMessages[601] = "세션을 찾을 수 없습니다. 다시 태그해주세요.";
+//       customMessages[602] =
+//         "세션을 완료할 권한이 없습니다. 로그인 상태를 확인해주세요.";
+//       break;
 
-    case "tag":
-      customMessages[404] =
-        "해당 컵을 찾을 수 없습니다. 올바른 QR코드인지 확인해주세요.";
-      customMessages[403] =
-        "이 컵을 사용할 권한이 없습니다. 로그인 상태를 확인해주세요.";
-      break;
-  }
+//     case "tag":
+//       customMessages[601] =
+//         "해당 컵을 찾을 수 없습니다. 올바른 QR코드인지 확인해주세요.";
+//       customMessages[602] =
+//         "이 컵을 사용할 권한이 없습니다. 로그인 상태를 확인해주세요.";
+//       break;
+//   }
 
-  handleApiError(error, {
-    operation: `Cup ${operation}`,
-    customMessages,
-  });
-};
+//   handleApiError(error);
+// };

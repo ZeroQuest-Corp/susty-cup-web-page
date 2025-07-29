@@ -27,6 +27,7 @@ export interface UserInfo {
   profile_image_url: string;
   is_sustycup_nft: boolean;
   is_zq_user: boolean;
+  next_eligible_at: Date;
 }
 
 // 로그인 응답 타입

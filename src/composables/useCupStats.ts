@@ -1,74 +1,9 @@
 // src/composables/useCupStats.ts
 import { ref, computed } from "vue";
-import { CupAPI } from "@/api";
 import { useCupStore } from "@/store/cup";
-import { handleCupApiError } from "@/utils";
 
 export function useCupStats() {
   const cupStore = useCupStore();
-
-  const getCupInit = async (cupId: string) => {
-    try {
-      const response = await CupAPI.getCupInit(cupId);
-      if (response.data) {
-        cupStore.initializeCup(response.data.cupCount, response.data.sessionId);
-        console.log("컵 정보 초기화 완료:", {
-          cupCount: response.data.cupCount,
-          sessionId: response.data.sessionId,
-        });
-      }
-    } catch (error) {
-      handleCupApiError(error, "init");
-    }
-  };
-
-  // 로그인 후 스캔 세션 완료 (로그인 전에 태그한 경우)
-  const completeScanSession = async (sessionId: string) => {
-    if (!sessionId) {
-      console.warn("세션 ID가 없어 스캔 세션을 완료할 수 없습니다.");
-      return;
-    }
-
-    try {
-      const response = await CupAPI.completeScanSession(sessionId);
-      if (response.data) {
-        cupStore.updateAfterScan(
-          response.data.cupCount,
-          response.data.cupId,
-          response.data.nextEligibleAt
-        );
-        console.log("스캔 세션 완료:", {
-          cupCount: response.data.cupCount,
-          cupId: response.data.cupId,
-          nextEligibleAt: response.data.nextEligibleAt,
-        });
-      }
-    } catch (error) {
-      handleCupApiError(error, "session");
-    }
-  };
-
-  // 로그인된 상태에서 직접 태그 (이미 로그인한 상태에서 태그)
-  const completeScanTag = async (cupId: string) => {
-    try {
-      const response = await CupAPI.completeScanTag(cupId);
-
-      if (response.data) {
-        cupStore.updateAfterScan(
-          response.data.cupCount,
-          response.data.cupId,
-          response.data.nextEligibleAt
-        );
-        console.log("태그 스캔 완료:", {
-          cupCount: response.data.cupCount,
-          cupId: response.data.cupId,
-          nextEligibleAt: response.data.nextEligibleAt,
-        });
-      }
-    } catch (error) {
-      handleCupApiError(error, "tag");
-    }
-  };
 
   // 1) 사용 횟수와 탄소 절감량 (store에서 가져오기)
   const usageCount = computed(() => cupStore.cupCount);
@@ -97,18 +32,23 @@ export function useCupStats() {
   };
 
   return {
-    getCupInit,
-    completeScanSession,
-    completeScanTag,
+    // store의 API 함수들을 그대로 노출
+    getCupInfo: cupStore.getCupInfo,
+    initCup: cupStore.initCup,
+    safeInitCup: cupStore.safeInitCup,
+    completeScanSession: cupStore.completeScanSession,
+    completeScanTag: cupStore.completeScanTag,
+    updateCupCount: cupStore.updateCupCount,
+    // UI 관련 데이터
     usageCount,
     carbonReduced,
     steps,
     currentStep,
     infoItems,
     handlePrimaryAction,
+    // store의 computed 값들
     isEligibleForReward: computed(() => cupStore.isEligibleForReward),
     isInitialized: computed(() => cupStore.isInitialized),
     sessionId: computed(() => cupStore.sessionId),
-    nextEligibleAt: computed(() => cupStore.nextEligibleAt),
   };
 }

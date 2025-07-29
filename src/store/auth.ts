@@ -8,9 +8,45 @@ export const useAuthStore = defineStore("auth", () => {
   const accessToken = ref<string | null>(null);
   const exp = ref<number | null>(null);
   const userInfo = ref<UserInfo | null>(null);
+  const nextEligibleAt = ref<Date | null>(null); // 다음 사용 가능 시간
+
+  // localStorage에서 nextEligibleAt 초기화
+  const initNextEligibleAt = () => {
+    const stored = localStorage.getItem("nextEligibleAt");
+    if (stored) {
+      try {
+        const storedDate = new Date(stored);
+        // 저장된 시간이 현재 시간보다 미래인 경우에만 사용
+        if (storedDate.getTime() > Date.now()) {
+          nextEligibleAt.value = storedDate;
+          console.log("localStorage에서 nextEligibleAt 복원:", storedDate);
+        } else {
+          // 만료된 시간이면 localStorage에서 제거
+          localStorage.removeItem("nextEligibleAt");
+          console.log("만료된 nextEligibleAt localStorage 제거");
+        }
+      } catch (error) {
+        console.error("nextEligibleAt localStorage 파싱 에러:", error);
+        localStorage.removeItem("nextEligibleAt");
+      }
+    }
+  };
+
+  // nextEligibleAt을 localStorage에 저장
+  const saveNextEligibleAt = (date: Date | null) => {
+    if (date) {
+      localStorage.setItem("nextEligibleAt", date.toISOString());
+      console.log("nextEligibleAt localStorage 저장:", date);
+    } else {
+      localStorage.removeItem("nextEligibleAt");
+      console.log("nextEligibleAt localStorage 제거");
+    }
+  };
 
   /** 앱 부팅 시 호출 → refresh_token(쿠키) → 새 access_token */
   const init = async () => {
+    // localStorage에서 nextEligibleAt 복원
+    initNextEligibleAt();
     await refresh();
 
     // 401 응답 오면 자동 재발급 → 원 요청 재시도
@@ -56,6 +92,11 @@ export const useAuthStore = defineStore("auth", () => {
       accessToken.value = null;
       exp.value = null;
       isLoggedIn.value = false;
+      updateNextEligibleAt(null); // 로그아웃 시 nextEligibleAt도 초기화
+
+      // 로그아웃 시 cupCount localStorage도 정리
+      localStorage.removeItem("cupCount");
+      console.log("로그아웃 시 cupCount localStorage 정리");
 
       // Authorization 헤더 제거
       delete axios.defaults.headers.Authorization;
@@ -66,6 +107,15 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const response = await AuthAPI.getCurrentUser();
       userInfo.value = response.data;
+
+      // 다음 사용 가능 시간 저장
+      if (response.data.next_eligible_at) {
+        updateNextEligibleAt(new Date(response.data.next_eligible_at));
+        console.log("다음 사용 가능 시간:", nextEligibleAt.value);
+      } else {
+        updateNextEligibleAt(null);
+      }
+
       console.log("사용자 정보 조회 결과:", response);
 
       // NFT 상태가 false이거나 없는 경우 블록체인에서 재확인
@@ -79,5 +129,35 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  return { accessToken, isLoggedIn, init, refresh, getUserInfo, userInfo };
+  // 현재 태그 가능 여부 확인
+  const canTagNow = () => {
+    if (!nextEligibleAt.value) return true;
+    return Date.now() >= nextEligibleAt.value.getTime();
+  };
+
+  // 남은 시간 계산 (밀리초)
+  const getRemainingTime = () => {
+    if (!nextEligibleAt.value) return 0;
+    const remaining = nextEligibleAt.value.getTime() - Date.now();
+    return Math.max(0, remaining);
+  };
+
+  // nextEligibleAt 업데이트 (localStorage 저장 포함)
+  const updateNextEligibleAt = (date: Date | null) => {
+    nextEligibleAt.value = date;
+    saveNextEligibleAt(date);
+  };
+
+  return {
+    accessToken,
+    isLoggedIn,
+    nextEligibleAt,
+    init,
+    refresh,
+    getUserInfo,
+    userInfo,
+    canTagNow,
+    getRemainingTime,
+    updateNextEligibleAt,
+  };
 });
