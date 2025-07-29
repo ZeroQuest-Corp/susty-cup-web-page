@@ -10,14 +10,14 @@
     >
       <!-- 601 에러 - 카운트다운 모달 -->
       <div v-if="modalType === 'countdown'" class="py-8 px-6 text-center">
-        <div class="mb-8">
+        <div class="mb-6">
           <p class="text-xl text-[#39383D] leading-relaxed">
             일정 시간이 지난 후<br />
             재사용할 수 있습니다.
           </p>
         </div>
 
-        <div class="bg-[#F6F6F6] rounded-xl p-4 mb-8">
+        <div class="bg-[#F6F6F6] rounded-xl p-4 mb-4">
           <p class="text-xl font-semibold text-[#39383D] mb-4">
             보상받고 사용하기 남은 시간
           </p>
