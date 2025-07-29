@@ -11,25 +11,27 @@
       <!-- 601 에러 - 카운트다운 모달 -->
       <div v-if="modalType === 'countdown'" class="py-8 px-6 text-center">
         <div class="mb-8">
-          <p class="text-lg text-gray-700 leading-relaxed">
+          <p class="text-xl text-[#39383D] leading-relaxed">
             일정 시간이 지난 후<br />
             재사용할 수 있습니다.
           </p>
         </div>
 
-        <div class="mb-8">
-          <p class="text-sm text-gray-500 mb-4">보상받고 사용하기 남은 시간</p>
+        <div class="bg-[#F6F6F6] rounded-xl p-4 mb-8">
+          <p class="text-xl font-semibold text-[#39383D] mb-4">
+            보상받고 사용하기 남은 시간
+          </p>
 
           <div class="flex justify-center items-center gap-2 mb-8">
             <div
-              class="bg-gray-400 rounded-lg w-12 h-12 flex items-center justify-center"
+              class="bg-[#9B9B9B] rounded-lg w-12 h-16 flex items-center justify-center"
             >
               <span class="text-white text-2xl font-bold font-mono">{{
                 minutes[0] || "0"
               }}</span>
             </div>
             <div
-              class="bg-gray-400 rounded-lg w-12 h-12 flex items-center justify-center"
+              class="bg-[#9B9B9B] rounded-lg w-12 h-16 flex items-center justify-center"
             >
               <span class="text-white text-2xl font-bold font-mono">{{
                 minutes[1] || "0"
@@ -37,14 +39,14 @@
             </div>
             <div class="text-gray-700 text-2xl font-bold mx-1">:</div>
             <div
-              class="bg-gray-400 rounded-lg w-12 h-12 flex items-center justify-center"
+              class="bg-[#9B9B9B] rounded-lg w-12 h-16 flex items-center justify-center"
             >
               <span class="text-white text-2xl font-bold font-mono">{{
                 seconds[0]
               }}</span>
             </div>
             <div
-              class="bg-gray-400 rounded-lg w-12 h-12 flex items-center justify-center"
+              class="bg-[#9B9B9B] rounded-lg w-12 h-16 flex items-center justify-center"
             >
               <span class="text-white text-2xl font-bold font-mono">{{
                 seconds[1]
@@ -55,7 +57,7 @@
 
         <button
           @click="closeModal"
-          class="bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-12 rounded-lg transition-colors w-full"
+          class="bg-[#11473F] text-white font-medium py-3 px-12 rounded-lg transition-colors w-full"
         >
           확인
         </button>
