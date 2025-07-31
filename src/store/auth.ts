@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { AuthAPI, type UserInfo } from "@/api/auth";
 import axios from "@/api/axios";
+import { handleApiError } from "@/utils/errorHandler";
 
 export const useAuthStore = defineStore("auth", () => {
   const isLoggedIn = ref(false);
@@ -48,26 +49,27 @@ export const useAuthStore = defineStore("auth", () => {
     // localStorage에서 nextEligibleAt 복원
     initNextEligibleAt();
     await refresh();
+    // await getUserInfo();
 
     // 401 응답 오면 자동 재발급 → 원 요청 재시도
-    axios.interceptors.response.use(
-      (res) => res,
-      async (error) => {
-        if (error.response?.status === 401) {
-          await refresh();
+    // axios.interceptors.response.use(
+    //   (res) => res,
+    //   async (error) => {
+    //     if (error.response?.status === 401) {
+    //       await refresh();
 
-          // 토큰 갱신 성공 시에만 재시도
-          if (accessToken.value) {
-            error.config.headers.Authorization = `Bearer ${accessToken.value}`;
-            return axios(error.config);
-          }
+    //       // 토큰 갱신 성공 시에만 재시도
+    //       if (accessToken.value) {
+    //         error.config.headers.Authorization = `Bearer ${accessToken.value}`;
+    //         return axios(error.config);
+    //       }
 
-          // 토큰 갱신 실패 시 (로그인되지 않은 상태) 에러 그대로 반환
-          console.log("토큰 갱신 실패 - 401 에러 반환");
-        }
-        return Promise.reject(error);
-      }
-    );
+    //       // 토큰 갱신 실패 시 (로그인되지 않은 상태) 에러 그대로 반환
+    //       console.log("토큰 갱신 실패 - 401 에러 반환");
+    //     }
+    //     return Promise.reject(error);
+    //   }
+    // );
   };
 
   /** 토큰 만료 1분 전이거나 없는 경우 → 재발급 */
@@ -100,12 +102,14 @@ export const useAuthStore = defineStore("auth", () => {
 
       // Authorization 헤더 제거
       delete axios.defaults.headers.Authorization;
+      // throw error;
     }
   };
 
   const getUserInfo = async () => {
     try {
       const response = await AuthAPI.getCurrentUser();
+
       userInfo.value = response.data;
 
       // 다음 사용 가능 시간 저장
@@ -116,8 +120,6 @@ export const useAuthStore = defineStore("auth", () => {
         updateNextEligibleAt(null);
       }
 
-      console.log("사용자 정보 조회 결과:", response);
-
       // NFT 상태가 false이거나 없는 경우 블록체인에서 재확인
       if (!userInfo.value?.is_sustycup_nft) {
         console.log("NFT 상태 확인 필요 - checkSustyCupNft 호출 권장");
@@ -126,6 +128,10 @@ export const useAuthStore = defineStore("auth", () => {
       }
     } catch (error) {
       console.error("사용자 정보 조회 실패:", error);
+      handleApiError(error);
+
+      // 에러를 다시 throw하여 호출하는 쪽에서 처리할 수 있게 함
+      throw error;
     }
   };
 

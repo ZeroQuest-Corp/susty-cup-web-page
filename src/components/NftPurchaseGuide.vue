@@ -57,7 +57,7 @@ const handleRefreshNftStatus = async () => {
   isRefreshing.value = true;
 
   try {
-    const hasNft = await userStore.checkSustyCupNft();
+    const hasNft = await userStore.checkSustycupNft();
 
     if (hasNft) {
       alert("✅ NFT 연동이 완료되었습니다!");

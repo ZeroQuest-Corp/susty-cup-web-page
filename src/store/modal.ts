@@ -1,13 +1,14 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-export type ModalType = "countdown" | "error" | "info";
+export type ModalType = "countdown" | "error" | "info" | "tagCount";
 
 export interface ModalData {
   title?: string;
   message?: string;
   nextEligibleAt?: Date;
   errorCode?: number;
+  tagCount?: number;
 }
 
 export const useModalStore = defineStore("modal", () => {
@@ -23,6 +24,10 @@ export const useModalStore = defineStore("modal", () => {
 
   const openCountdownModal = (nextEligibleAt: Date) => {
     openModal("countdown", { nextEligibleAt });
+  };
+
+  const openTagCountModal = (tagCount: number) => {
+    openModal("tagCount", { tagCount });
   };
 
   const openErrorModal = (errorCode: number, message: string) => {
@@ -45,6 +50,7 @@ export const useModalStore = defineStore("modal", () => {
     modalData,
     openModal,
     openCountdownModal,
+    openTagCountModal,
     openErrorModal,
     closeModal,
   };

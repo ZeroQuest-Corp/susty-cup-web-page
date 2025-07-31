@@ -10,14 +10,14 @@
     >
       <!-- 601 에러 - 카운트다운 모달 -->
       <div v-if="modalType === 'countdown'" class="py-8 px-6 text-center">
-        <div class="mb-6">
+        <div class="mb-8">
           <p class="text-xl text-[#39383D] leading-relaxed">
             일정 시간이 지난 후<br />
             재사용할 수 있습니다.
           </p>
         </div>
 
-        <div class="bg-[#F6F6F6] rounded-xl p-4 mb-4">
+        <div class="bg-[#F6F6F6] rounded-xl p-4 mb-8">
           <p class="text-xl font-semibold text-[#39383D] mb-4">
             보상받고 사용하기 남은 시간
           </p>
@@ -53,6 +53,40 @@
               }}</span>
             </div>
           </div>
+        </div>
+
+        <button
+          @click="closeModal"
+          class="bg-[#11473F] text-white font-medium py-3 px-12 rounded-lg transition-colors w-full"
+        >
+          확인
+        </button>
+      </div>
+
+      <!-- 612 에러 - 일일 태그 제한 모달 -->
+      <div v-else-if="modalType === 'tagCount'" class="py-8 px-6 text-center">
+        <div class="mb-8">
+          <div class="mb-4">
+            <div
+              class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <span class="text-2xl">⚠️</span>
+            </div>
+          </div>
+          <h2 class="text-xl font-bold text-[#39383D] mb-4">
+            일일 태그 제한 도달
+          </h2>
+          <p class="text-lg text-[#39383D] leading-relaxed">
+            하루에 최대
+            <span class="font-bold text-orange-600">4회</span>까지만<br />
+            보상을 받을 수 있습니다.
+          </p>
+        </div>
+
+        <div class="bg-[#FFF3CD] border border-[#FFEAA7] rounded-xl p-4 mb-8">
+          <p class="text-[#856404] text-sm">
+            💡 내일 자정 이후에 다시 태그해주세요!
+          </p>
         </div>
 
         <button

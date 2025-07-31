@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted } from "vue";
+import { computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/store/auth";
 import { useUserStore } from "@/store/user";
@@ -77,6 +77,7 @@ const sessionIdRaw = route.query.sid as string | undefined;
 // Reactive State
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
+const isSustycupNft = computed(() => userInfo.value?.is_sustycup_nft);
 
 // URL 파라미터 제거
 function removeUrlParams() {
@@ -90,13 +91,20 @@ function removeUrlParams() {
 async function handleAuthenticatedFlow(): Promise<boolean> {
   await authStore.getUserInfo();
 
+  await userStore.checkCupTagLimit();
+
+  // NFT 상태가 없거나 false인 경우 블록체인에서 확인
+  if (!isSustycupNft.value) {
+    console.log(
+      "handleAuthenticatedFlow checkSustycupNft - 블록체인 확인 필요",
+      isSustycupNft.value
+    );
+    await userStore.checkSustycupNft();
+  }
+
   if (!authStore.canTagNow()) {
     modalStore.openCountdownModal(authStore.nextEligibleAt!);
     return true;
-  }
-
-  if (!userInfo.value?.is_sustycup_nft) {
-    await userStore.updateSustyCupNft();
   }
 
   if (sessionIdRaw) {
@@ -118,13 +126,6 @@ async function handleAnonymousInit() {
     removeUrlParams();
   }
 }
-
-// 초기 마운트 시 NFT 확인
-onMounted(async () => {
-  if (isLoggedIn.value && userInfo.value && !userInfo.value.is_sustycup_nft) {
-    await userStore.updateSustyCupNft();
-  }
-});
 
 // 로그인 상태 변동 감시
 watch(

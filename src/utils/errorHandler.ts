@@ -38,12 +38,6 @@ export const handleApiError = (error: unknown) => {
         `서버 에러 코드: ${serverErrorCode}, 키: ${errorKey}, 메시지: ${errorMessage}`
       );
 
-      // 커스텀 메시지가 있으면 우선 사용
-      if (errorMessage) {
-        modalStore.openErrorModal(serverErrorCode, errorMessage);
-        return;
-      }
-
       // 서버 커스텀 에러 코드별 처리
       switch (serverErrorCode) {
         case 601:
@@ -68,6 +62,11 @@ export const handleApiError = (error: unknown) => {
         case 605:
           // TODO: 사용자가 정의할 에러 처리
           modalStore.openErrorModal(605, errorMessage);
+          break;
+
+        case 612:
+          // 일일 태그 제한 에러 - 전용 모달 사용
+          modalStore.openTagCountModal(4);
           break;
 
         default:
@@ -153,37 +152,3 @@ export const handleApiError = (error: unknown) => {
     modalStore.openErrorModal(0, "네트워크 연결을 확인해주세요.");
   }
 };
-
-/**
- * 컵 관련 API 에러 처리 (컨텍스트에 따른 커스텀 메시지)
- */
-// export const handleCupApiError = (
-//   error: unknown,
-//   operation: "init" | "session" | "tag"
-// ) => {
-//   const customMessages: { [key: number]: string } = {};
-
-//   switch (operation) {
-//     case "init":
-//       // 서버 에러 코드별 커스텀 메시지
-//       customMessages[601] =
-//         "해당 컵을 찾을 수 없습니다. 올바른 QR코드인지 확인해주세요.";
-//       customMessages[602] = "잘못된 QR코드입니다. 다시 확인해주세요.";
-//       break;
-
-//     case "session":
-//       customMessages[601] = "세션을 찾을 수 없습니다. 다시 태그해주세요.";
-//       customMessages[602] =
-//         "세션을 완료할 권한이 없습니다. 로그인 상태를 확인해주세요.";
-//       break;
-
-//     case "tag":
-//       customMessages[601] =
-//         "해당 컵을 찾을 수 없습니다. 올바른 QR코드인지 확인해주세요.";
-//       customMessages[602] =
-//         "이 컵을 사용할 권한이 없습니다. 로그인 상태를 확인해주세요.";
-//       break;
-//   }
-
-//   handleApiError(error);
-// };

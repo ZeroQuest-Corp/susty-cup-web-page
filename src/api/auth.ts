@@ -21,13 +21,12 @@ export interface KakaoUserInfo {
 
 export interface UserInfo {
   uid: string;
-  kakao_id: string;
   email: string;
-  nickname: string;
-  profile_image_url: string;
-  is_sustycup_nft: boolean;
   is_zq_user: boolean;
+  is_sustycup_nft: boolean;
+  zq_user_email: string;
   next_eligible_at: Date;
+  today_tag_count: number;
 }
 
 // 로그인 응답 타입

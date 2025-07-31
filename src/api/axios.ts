@@ -70,10 +70,10 @@ apiClient.interceptors.response.use(
     // (토큰 갱신 후 자동 재시도)
 
     // 403 Forbidden - 권한 없음
-    if (error.response?.status === 403) {
-      console.warn("🚫 Access forbidden");
-      alert("접근 권한이 없습니다.");
-    }
+    // if (error.response?.status === 403) {
+    //   console.warn("🚫 Access forbidden");
+    //   alert("접근 권한이 없습니다.");
+    // }
 
     // 404 Not Found
     if (error.response?.status === 404) {
