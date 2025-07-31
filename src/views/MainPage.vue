@@ -78,6 +78,7 @@ const sessionIdRaw = route.query.sid as string | undefined;
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
 const isSustycupNft = computed(() => userInfo.value?.is_sustycup_nft);
+const isZqUser = computed(() => userInfo.value?.is_zq_user);
 
 // URL 파라미터 제거
 function removeUrlParams() {
@@ -93,12 +94,14 @@ async function handleAuthenticatedFlow(): Promise<boolean> {
 
   await userStore.checkCupTagLimit();
 
+  if (!isZqUser.value) {
+    console.log("checkZqUser", isZqUser.value);
+    await userStore.checkZqUser();
+  }
+
   // NFT 상태가 없거나 false인 경우 블록체인에서 확인
   if (!isSustycupNft.value) {
-    console.log(
-      "handleAuthenticatedFlow checkSustycupNft - 블록체인 확인 필요",
-      isSustycupNft.value
-    );
+    console.log("checkSustycupNft", isSustycupNft.value);
     await userStore.checkSustycupNft();
   }
 
