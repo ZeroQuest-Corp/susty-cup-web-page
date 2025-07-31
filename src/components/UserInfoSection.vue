@@ -9,7 +9,7 @@
         <div class="w-1/2">
           <img src="@/assets/images/zeroquest_text.png" alt="logo" />
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-col items-center gap-2">
           <div class="flex items-center gap-2">
             <div class="text-white text-xl">ZQ 계정</div>
             <img src="@/assets/images/icon/check_icon.png" alt="check" />
@@ -39,7 +39,7 @@
         <div class="w-1/2">
           <img src="@/assets/images/zeroquest_text.png" alt="logo" />
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-col items-center gap-2">
           <div class="flex items-center gap-2">
             <div class="text-white text-xl">ZQ 계정</div>
             <img src="@/assets/images/icon/check_icon.png" alt="check" />
@@ -69,9 +69,15 @@
         <div class="w-1/2">
           <img src="@/assets/images/zeroquest_text.png" alt="logo" />
         </div>
-        <div class="flex items-center gap-2">
-          <div class="text-white text-xl">연결안됨</div>
-          <img src="@/assets/images/icon/close_icon.png" alt="close" />
+        <div class="flex flex-col items-center gap-2">
+          <div class="flex items-center gap-2">
+            <div class="text-white text-xl">ZQ 계정</div>
+            <img src="@/assets/images/icon/close_icon.png" alt="check" />
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="text-white text-xl">NFT 연동</div>
+            <img src="@/assets/images/icon/close_icon.png" alt="check" />
+          </div>
         </div>
       </div>
       <div
