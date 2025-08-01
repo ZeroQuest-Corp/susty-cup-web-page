@@ -94,10 +94,14 @@ async function handleAuthenticatedFlow(): Promise<boolean> {
 
   await userStore.checkCupTagLimit();
 
-  await userStore.checkZqUser();
+  if (isZqUser.value) {
+    await userStore.checkZqUser();
+  }
 
   // NFT 상태가 없거나 false인 경우 블록체인에서 확인
-  await userStore.checkSustycupNft();
+  if (isSustycupNft.value) {
+    await userStore.checkSustycupNft();
+  }
 
   if (!authStore.canTagNow()) {
     modalStore.openCountdownModal(authStore.nextEligibleAt!);
