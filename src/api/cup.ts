@@ -1,9 +1,11 @@
 import { api, type ApiResponse } from "./axios";
 
-export interface CupInitResponse
+export interface CupInitResponse extends ApiResponse<string> {}
+
+export interface CupInfoResponse
   extends ApiResponse<{
-    cupCount: number;
-    sessionId: string;
+    total_count: number;
+    cupId: string;
   }> {}
 
 export interface CompleteScanSessionResponse
@@ -14,8 +16,12 @@ export interface CompleteScanSessionResponse
   }> {}
 
 export class CupAPI {
-  static async getCupInit(cupId: string): Promise<CupInitResponse> {
+  static async initCup(cupId: string): Promise<CupInitResponse> {
     return api.post(`/cup/init`, { cupId });
+  }
+
+  static async getCupInfo(cupId: string): Promise<CupInfoResponse> {
+    return api.get(`/cup/info/${cupId}`);
   }
 
   static async completeScanSession(
