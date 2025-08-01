@@ -21,7 +21,7 @@
       리워드를 받으려면 제로퀘스트 앱에서 서스티컵 NFT를 구매해야 합니다.
     </p>
 
-    <div class="flex gap-3">
+    <!-- <div class="flex gap-3">
       <button
         @click="handlePurchaseGuide"
         class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
@@ -36,7 +36,7 @@
       >
         {{ isRefreshing ? "확인 중..." : "NFT 상태 재확인" }}
       </button>
-    </div>
+    </div> -->
   </div>
 </template>
 

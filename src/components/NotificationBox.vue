@@ -18,7 +18,7 @@
         <div class="text-gray-700 text-sm font-black">•</div>
         <div class="text-gray-700 text-sm">
           서스티컵의 리워드는
-          <span class="font-bold">1일 최대 2회</span> 지급됩니다.
+          <span class="font-bold">1일 최대 4회</span> 지급됩니다.
         </div>
       </div>
       <div class="flex items-start gap-2">

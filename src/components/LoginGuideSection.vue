@@ -473,7 +473,7 @@
           </span>
           <span
             class="text-gray-600 text-xs font-bold font-['Noto_Sans'] leading-none"
-            >1일 최대 2회</span
+            >1일 최대 4회</span
           >
           <span
             class="text-gray-600 text-xs font-normal font-['Noto_Sans'] leading-none"
