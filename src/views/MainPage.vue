@@ -75,6 +75,7 @@ const cupId = route.query.s as string | undefined;
 const sessionIdRaw = route.query.sid as string | undefined;
 
 // Reactive State
+const isAuthReady = computed(() => authStore.isAuthReady);
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
 const isSustycupNft = computed(() => userInfo.value?.is_sustycup_nft);
@@ -130,17 +131,18 @@ async function handleAnonymousInit() {
 
 // 로그인 상태 변동 감시
 watch(
-  isLoggedIn,
-  async (newVal, oldVal) => {
-    if (newVal) {
+  isAuthReady, // 👈 [변경] isAuthReady를 감시
+  async (ready) => {
+    if (!ready) return; // 👈 [추가] 인증 준비가 안됐으면 실행 안함
+
+    if (isLoggedIn.value) {
       const interrupted = await handleAuthenticatedFlow();
       if (interrupted) {
         removeUrlParams();
         return;
       }
-    } else if (oldVal === undefined) {
+    } else {
       await handleAnonymousInit();
-      return;
     }
 
     removeUrlParams();

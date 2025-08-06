@@ -98,6 +98,17 @@ export const useCupStore = defineStore("cup", () => {
   // 로그인 전 태그 - 안전한 초기화 (601 에러 시 익명 기록 생성 안함)
   const safeInitCup = async (cupId: string) => {
     try {
+      // 0단계: nextEligibleAt 시간 제한 체크 (localStorage에서 복원된 정보)
+      if (!authStore.canTagNow()) {
+        console.log(
+          "로그인 전이지만 시간 제한 감지 - 익명 기록 생성하지 않고 모달 표시"
+        );
+        const { useModalStore } = await import("@/store/modal");
+        const modalStore = useModalStore();
+        modalStore.openCountdownModal(authStore.nextEligibleAt!);
+        return;
+      }
+
       // 1단계: 먼저 컵 정보만 확인
       console.log("1단계: 컵 정보 확인 중...");
       await getCupInfo(cupId);
