@@ -33,7 +33,11 @@
     <div
       class="z-10 px-5 pt-8 pb-14 relative bg-white rounded-tl-2xl rounded-tr-2xl shadow-[0px_-8px_12px_0px_rgba(0,0,0,0.08)] flex flex-col justify-center items-center gap-14"
     >
-      <UserInfoSection v-if="isLoggedIn" :user="userInfo" />
+      <UserInfoSection
+        v-if="isLoggedIn"
+        :user="userInfo"
+        :isNftRegistered="isNftRegistered"
+      />
       <LoginGuideSection v-else :sessionId="sessionId" />
     </div>
 
@@ -63,6 +67,7 @@ const {
   usageCount,
   carbonReduced,
   sessionId,
+  isNftRegistered,
 } = useCupStats();
 const authStore = useAuthStore();
 const userStore = useUserStore();
@@ -75,6 +80,7 @@ const cupId = route.query.s as string | undefined;
 const sessionIdRaw = route.query.sid as string | undefined;
 
 // Reactive State
+const isAuthReady = computed(() => authStore.isAuthReady);
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const userInfo = computed(() => authStore.userInfo);
 const isSustycupNft = computed(() => userInfo.value?.is_sustycup_nft);
@@ -94,12 +100,12 @@ async function handleAuthenticatedFlow(): Promise<boolean> {
 
   await userStore.checkCupTagLimit();
 
-  if (isZqUser.value) {
+  if (!isZqUser.value) {
     await userStore.checkZqUser();
   }
 
-  // NFT 상태가 없거나 false인 경우 블록체인에서 확인
-  if (isSustycupNft.value) {
+  // zq 계정이 있는 경우 nft 상태 확인
+  if (isZqUser.value) {
     await userStore.checkSustycupNft();
   }
 
@@ -130,17 +136,18 @@ async function handleAnonymousInit() {
 
 // 로그인 상태 변동 감시
 watch(
-  isLoggedIn,
-  async (newVal, oldVal) => {
-    if (newVal) {
+  isAuthReady, // 👈 [변경] isAuthReady를 감시
+  async (ready) => {
+    if (!ready) return; // 👈 [추가] 인증 준비가 안됐으면 실행 안함
+
+    if (isLoggedIn.value) {
       const interrupted = await handleAuthenticatedFlow();
       if (interrupted) {
         removeUrlParams();
         return;
       }
-    } else if (oldVal === undefined) {
+    } else {
       await handleAnonymousInit();
-      return;
     }
 
     removeUrlParams();

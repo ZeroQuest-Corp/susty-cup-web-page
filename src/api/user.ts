@@ -9,6 +9,7 @@ export interface CheckZqUserResponse {
 // SustyCup NFT 확인 응답 타입
 export interface CheckSustycupNftResponse {
   isSustycupNft: boolean;
+  alreadyRegistered?: boolean;
 }
 
 // 컵 태그 제한 확인 응답 타입

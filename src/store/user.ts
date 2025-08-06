@@ -3,9 +3,11 @@ import { ref } from "vue";
 import { UserAPI } from "@/api/user";
 import { useAuthStore } from "@/store/auth";
 import { handleApiError } from "@/utils/errorHandler";
+import { useCupStore } from "@/store/cup";
 
 export const useUserStore = defineStore("user", () => {
   const authStore = useAuthStore();
+  const cupStore = useCupStore();
   const todayTagCount = ref(0);
 
   const checkZqUser = async (): Promise<boolean> => {
@@ -36,6 +38,7 @@ export const useUserStore = defineStore("user", () => {
       const response = await UserAPI.checkSustycupNft();
       if (authStore.userInfo) {
         authStore.userInfo.is_sustycup_nft = response.data.isSustycupNft;
+        cupStore.isNftRegistered = response.data.alreadyRegistered || false;
         console.log("checkSustycupNft 성공:", response.data);
         return true;
       }

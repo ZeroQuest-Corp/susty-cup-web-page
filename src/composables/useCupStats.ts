@@ -50,5 +50,6 @@ export function useCupStats() {
     isEligibleForReward: computed(() => cupStore.isEligibleForReward),
     isInitialized: computed(() => cupStore.isInitialized),
     sessionId: computed(() => cupStore.sessionId),
+    isNftRegistered: computed(() => cupStore.isNftRegistered),
   };
 }

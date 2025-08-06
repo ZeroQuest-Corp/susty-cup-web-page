@@ -93,7 +93,7 @@
     </div>
     <!-- NFT 구매 안내 (리워드 자격이 있지만 NFT가 없는 경우) -->
     <div v-if="isEligibleForReward && !isSustyCupNft" class="mt-4">
-      <NftPurchaseGuide />
+      <NftPurchaseGuide :isNftRegistered="alreadyRegisteredCup" />
     </div>
     <DownloadBox />
     <NotificationBox />
@@ -110,10 +110,13 @@ import { useCupStats } from "@/composables/useCupStats";
 
 const props = defineProps<{
   user: UserInfo | null;
+  isNftRegistered: boolean;
 }>();
 
 const { isEligibleForReward } = useCupStats();
 const isZqUser = computed(() => props.user?.is_zq_user);
 const zqUserEmail = computed(() => props.user?.zq_user_email);
 const isSustyCupNft = computed(() => props.user?.is_sustycup_nft);
+
+const alreadyRegisteredCup = computed(() => props.isNftRegistered);
 </script>
