@@ -11,6 +11,7 @@ export const useCupStore = defineStore("cup", () => {
   const sessionId = ref("");
   const cupId = ref("");
   const isInitialized = ref(false);
+  const isNftRegistered = ref(false);
 
   // localStorage에서 cupCount 초기화
   const initCupCount = () => {
@@ -204,6 +205,7 @@ export const useCupStore = defineStore("cup", () => {
     sessionId,
     cupId,
     isInitialized,
+    isNftRegistered,
     // computed
     carbonReduced,
     isEligibleForReward,

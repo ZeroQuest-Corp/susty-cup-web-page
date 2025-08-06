@@ -33,7 +33,11 @@
     <div
       class="z-10 px-5 pt-8 pb-14 relative bg-white rounded-tl-2xl rounded-tr-2xl shadow-[0px_-8px_12px_0px_rgba(0,0,0,0.08)] flex flex-col justify-center items-center gap-14"
     >
-      <UserInfoSection v-if="isLoggedIn" :user="userInfo" />
+      <UserInfoSection
+        v-if="isLoggedIn"
+        :user="userInfo"
+        :isNftRegistered="isNftRegistered"
+      />
       <LoginGuideSection v-else :sessionId="sessionId" />
     </div>
 
@@ -63,6 +67,7 @@ const {
   usageCount,
   carbonReduced,
   sessionId,
+  isNftRegistered,
 } = useCupStats();
 const authStore = useAuthStore();
 const userStore = useUserStore();
