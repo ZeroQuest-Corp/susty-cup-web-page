@@ -456,7 +456,7 @@
           </span>
           <span
             class="text-gray-600 text-xs font-bold font-['Noto_Sans'] leading-none"
-            >10회</span
+            >11회</span
           >
           <span
             class="text-gray-600 text-xs font-normal font-['Noto_Sans'] leading-none"
@@ -465,7 +465,7 @@
           /></span>
           <span
             class="text-red-600 text-xs font-normal font-['Noto_Sans'] leading-none"
-            >(※ 9회 이하 이용 시 리워드는 지급되지 않습니다.)<br
+            >(※ 10회 이하 이용 시 리워드는 지급되지 않습니다.)<br
           /></span>
           <span
             class="text-gray-600 text-xs font-normal font-['Noto_Sans'] leading-none"
