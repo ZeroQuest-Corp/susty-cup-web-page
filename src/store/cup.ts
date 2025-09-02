@@ -48,8 +48,20 @@ export const useCupStore = defineStore("cup", () => {
   // Store 초기화 시 localStorage에서 cupCount 복원
   initCupCount();
 
-  // 탄소 절감량 계산 (컵 1개당 240g)
-  const carbonReduced = computed(() => cupCount.value * 240);
+  // 탄소 절감량 계산 (새로운 로직)
+  const carbonReduced = computed(() => {
+    const count = cupCount.value;
+    
+    if (count === 0) return 0;
+    
+    if (count <= 10) {
+      // 1-10회: 240g에서 시작해서 24g씩 감소
+      return 240 - (count - 1) * 24;
+    } else {
+      // 11회 이상: 24g씩 증가
+      return (count - 10) * 24;
+    }
+  });
 
   // 리워드 자격 여부 (10회 이상)
   const isEligibleForReward = computed(() => cupCount.value >= 10);
