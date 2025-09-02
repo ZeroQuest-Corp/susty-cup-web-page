@@ -51,12 +51,12 @@ export const useCupStore = defineStore("cup", () => {
   // 탄소 절감량 계산 (새로운 로직)
   const carbonReduced = computed(() => {
     const count = cupCount.value;
-    
+
     if (count === 0) return 0;
-    
+
     if (count <= 10) {
       // 1-10회: 240g에서 시작해서 24g씩 감소
-      return 240 - (count - 1) * 24;
+      return 240 - count * 24;
     } else {
       // 11회 이상: 24g씩 증가
       return (count - 10) * 24;
