@@ -51,7 +51,7 @@ jobs:
           key: ${{ secrets.NCP_SSH_PRIVATE_KEY }}
           port: ${{ secrets.NCP_SSH_PORT }}
           source: "dist/*"
-          target: "/var/www/public/susty-cup"
+          target: "/home/zeroquest/deploy/public/sustycup"
           strip_components: 0
           rm: true
 
