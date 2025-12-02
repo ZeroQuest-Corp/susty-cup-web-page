@@ -21,10 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Get Environment
+        run: echo "${{ secrets.SUSTYCUP_ENV }}" > .env.production
+
       - name: Build
         run: npm run build
-        env:
-          NODE_ENV: production
 
       - name: Get Github Actions IP
         id: ip
